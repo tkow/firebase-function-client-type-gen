@@ -64,24 +64,16 @@ function extractFunctionDefinition(source: ts.SourceFile, checker: ts.TypeChecke
     ts.forEachChild(source, function next(node) {
         if (ts.isTypeAliasDeclaration(node)) {
             if (node.name.text === symbolConfig.args) {
-                node.forEachChild((v) => {
-                    if (ts.isTypeLiteralNode(v)) {
-                        const t = checker.getTypeAtLocation(v);
-                        // NOTE: https://stackoverflow.com/questions/67423762/typescript-compilerapi-how-to-get-expanded-type-ast
-                        const ast = checker.typeToTypeNode(t, undefined, ts.NodeBuilderFlags.NoTruncation | ts.NodeBuilderFlags.InTypeAlias)
-                        typeObjectNode['args'] = ast
-                    }
-                })
+                const t = checker.getTypeAtLocation(node);
+                // NOTE: https://stackoverflow.com/questions/67423762/typescript-compilerapi-how-to-get-expanded-type-ast
+                const ast = checker.typeToTypeNode(t, undefined, ts.NodeBuilderFlags.NoTruncation | ts.NodeBuilderFlags.InTypeAlias)
+                typeObjectNode['args'] = ast
             }
             if (node.name.text === symbolConfig.result) {
-                node.forEachChild((v) => {
-                    if (ts.isTypeLiteralNode(v)) {
-                        const t = checker.getTypeAtLocation(v);
-                        // NOTE: https://stackoverflow.com/questions/67423762/typescript-compilerapi-how-to-get-expanded-type-ast
-                        const ast = checker.typeToTypeNode(t, undefined, ts.NodeBuilderFlags.NoTruncation | ts.NodeBuilderFlags.InTypeAlias)
-                        typeObjectNode['result'] = ast
-                    }
-                })
+                const t = checker.getTypeAtLocation(node);
+                // NOTE: https://stackoverflow.com/questions/67423762/typescript-compilerapi-how-to-get-expanded-type-ast
+                const ast = checker.typeToTypeNode(t, undefined, ts.NodeBuilderFlags.NoTruncation | ts.NodeBuilderFlags.InTypeAlias)
+                typeObjectNode['result'] = ast
             }
         }
         if (ts.isVariableStatement(node)) {
