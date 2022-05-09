@@ -11,7 +11,7 @@
     "build": "npm run clean && tsc",
     "test": "npm run build && ts-node --transpile-only ./tests"
   },
-  "repository": "https://github.com/tkow/firebase-function-client-gen.git",
+  "repository": "https://github.com/tkow/firebase-function-client-type-gen.git",
   "author": "tkow <t.kusama0613@outlook.jp>",
   "license": "MIT",
   "devDependencies": {
