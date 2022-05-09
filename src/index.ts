@@ -87,7 +87,7 @@ function extractFunctionDefinition(source: ts.SourceFile, checker: ts.TypeChecke
         if (ts.isVariableStatement(node)) {
             node.forEachChild((v) => {
                 if (v.kind === ts.SyntaxKind.ExportKeyword && !typeObjectNode.functionName) {
-                    if (visitIdentifierFound(node, 'onCall')) {
+                    if (visitIdentifierFound(node, 'https')) {
                         typeObjectNode.functionName = (node as ts.VariableStatement).declarationList.declarations[0].name.getText()
                     }
                 }
@@ -143,16 +143,19 @@ export function getFullFunctionNames(functionObj: Record<any, any>, current_valu
             })
             results = results.concat(recured)
         } else {
-            results.push(`${current_value}-${key}`)
+            if (current_value) results.push(`${current_value}-${key}`)
+            else results.push(key)
         }
     }
     return results
 }
 
 export function getFullFunctionNamesMapGeneratedFile(functionNames: string[], functionObj: Record<any, any>): string {
-    const functionFullNames = getFullFunctionNames(functionObj)
+    const targetObj = functionObj.default ?? functionObj
+    const functionFullNames = getFullFunctionNames(targetObj)
+
     const functionMap: Record<string, string> = functionNames.reduce((current, functionName) => {
-        const targetFullName = functionFullNames.find(fn => fn.match(new RegExp(`${fn}$`)))
+        const targetFullName = functionFullNames.find(fn => fn.endsWith(functionName))
         return {
             ...current,
             [functionName]: targetFullName

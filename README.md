@@ -47,10 +47,36 @@ export const MOCKS = new Proxy(MOCKS_BASE, {
 })
 ```
 
+```fixtures.ts
+import * as functions from 'firebase-functions'
+
+// You define two types in function definition file and they must be in a file include function declaration.
+type RequestArgs = {
+    id: string
+}
+type ResponseResult = {
+    result: 'ok' | 'ng'
+}
+
+// You must export "only one const https onCall" in a file.
+// If you export many httpsOnCall functions, it may happen unexpected result when mapping args and result types.'
+export const includeTest = functions
+    .region('asia-northeast1')
+    .runWith({
+        memory: '1GB'
+    })
+    .https.onCall((data: Params,_): Return => {
+        return {
+            result: 'ok'
+        }
+    })
+```
+
+
 ```main.ts
 import proxyquire from 'proxyquire'
 import { MOCKS } from './mock'
-import { outDefinitions } from './firebase-function-client-gen/generateTypes'
+import { outDefinitions } from 'firebase-function-client-gen'
 import path from 'path'
 import glob from 'glob'
 
@@ -73,3 +99,10 @@ try {
   console.error(e);
 }
 ```
+
+See tests/index.ts code more detailed usage.
+
+## Warning
+
+- This library for typescript firebase function users.
+- Your mustn't define more than two firebase https function in a file, they may cause bug.
