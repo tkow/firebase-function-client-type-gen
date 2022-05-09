@@ -1,6 +1,6 @@
 {
   "name": "firebase-function-client-gen",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "generator firebase functions httpsOnCall function types",
   "main": "dist/index.js",
   "files": [
