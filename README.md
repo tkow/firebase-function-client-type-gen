@@ -1,11 +1,11 @@
-## About firebase-function-client-gen
+## About firebase-function-client-type-gen
 
 Generator of client types of firebase functions derived from orginal firebase deploy definition object.
 
 ## Get Started
 
 ```shell
-npm i --save-dev firebase-function-client-gen proxyquire @types/proxyquire typescript
+npm i --save-dev firebase-function-client-type-gen proxyquire @types/proxyquire typescript
 ```
 
 ```mock.ts
@@ -76,7 +76,7 @@ export const includeTest = functions
 ```main.ts
 import proxyquire from 'proxyquire'
 import { MOCKS } from './mock'
-import { outDefinitions } from 'firebase-function-client-gen'
+import { outDefinitions } from 'firebase-function-client-type-gen'
 import path from 'path'
 import glob from 'glob'
 
