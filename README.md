@@ -105,4 +105,5 @@ See tests/index.ts code more detailed usage.
 ## Warning
 
 - This library for typescript firebase function users.
-- Your mustn't define more than two firebase https function in a file, they may cause bug.
+- You mustn't define more than two firebase https functions in a file, they may cause bug.
+- Your args and result type must be included in the function definition file.
