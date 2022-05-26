@@ -139,7 +139,7 @@ export function initializeFunctions<FunctionDefnitions extends IFunctionDefnitio
 import { FunctionDefinitions, functionsMap } from './functions-types'
 const client = initializeFunctions<FunctionDefinitions>(functionsMap)
 // Fully type-safed api call functions.
-client.callSomethinReuest({...args})
+client.callSomethingReuest({...args})
 ```
 
 
@@ -148,6 +148,7 @@ client.callSomethinReuest({...args})
 - This library for typescript firebase function users.
 - You mustn't define more than two firebase https functions in a file, they may cause bug.
 - Your args and result type must be included in the function definition file.
+- If you need to change region as basis as function, manually call `const someCallable = httpsCallable(getFunction(getApp(), region), functionId)` instead of initializeFunctions above.
 
 ## LICENSE
 
