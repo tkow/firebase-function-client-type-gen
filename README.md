@@ -65,7 +65,7 @@ export const includeTest = functions
     .runWith({
         memory: '1GB'
     })
-    .https.onCall((data: Params,_): Return => {
+    .https.onCall((data: RequestArgs,_): ResponseResult => {
         return {
             result: 'ok'
         }
