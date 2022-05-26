@@ -111,4 +111,4 @@ See tests/index.ts code more detailed usage.
 ## LICENSE
 
 [MIT](./LICENSE)
->>>>>>> 7045c26 (feat: remove if not export function definition included)
+
