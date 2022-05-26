@@ -1,17 +1,19 @@
 import * as functions from 'firebase-functions'
 
-type Params = Record<any, any>
+type Params = {
+    id: string
+}
 type Return = {
-    result: 'success' | 'failed'
+    result: 'ok' | 'ng'
 }
 
-export const includeTestShallow = functions
+export const notImporetedTest = functions
     .region('asia-northeast1')
     .runWith({
         memory: '1GB'
     })
     .https.onCall((data: Params,_): Return => {
         return {
-            result: 'success'
+            result: 'ok'
         }
     })

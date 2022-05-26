@@ -107,3 +107,8 @@ See tests/index.ts code more detailed usage.
 - This library for typescript firebase function users.
 - You mustn't define more than two firebase https functions in a file, they may cause bug.
 - Your args and result type must be included in the function definition file.
+
+## LICENSE
+
+[MIT](./LICENSE)
+>>>>>>> 7045c26 (feat: remove if not export function definition included)

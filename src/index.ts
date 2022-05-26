@@ -103,7 +103,9 @@ function makeFunctionDefinitionTypes(defs: FunctionAst[]) {
     )
 }
 
-export function getGeneratedFunctionDefinitionsAndFunctionNames(sources: string[], symbolConfig: SymbolConfig = ARGS_RESPONSE_TYPE_IDENTIFIER): { generatedCode: string; functionNames: string[]; } {
+type GeneratedDefinition = { extractedFunctionDefinitions: FunctionAst[]; functionNames: string[]; }
+
+export function getGeneratedFunctionDefinitionsAndFunctionNames(sources: string[], symbolConfig: SymbolConfig = ARGS_RESPONSE_TYPE_IDENTIFIER): GeneratedDefinition {
     const target = readTypeSciptFilesAndChecker(sources)
 
     const extractedFunctionDefinitions: FunctionAst[] = []
@@ -113,17 +115,21 @@ export function getGeneratedFunctionDefinitionsAndFunctionNames(sources: string[
         if (extractedDefinition) extractedFunctionDefinitions.push(extractedDefinition)
     })
 
-    const ast = makeFunctionDefinitionTypes(extractedFunctionDefinitions)
+    return {
+        extractedFunctionDefinitions,
+        functionNames: extractedFunctionDefinitions.map(v => v.functionName)
+    }
+}
+
+
+function generateCodeFromAst(ast: ts.Node) {
     const resultFile = ts.createSourceFile("dummy.ts", "", ts.ScriptTarget.Latest, /*setParentNodes*/ false, ts.ScriptKind.TS);
     const printer = ts.createPrinter({ newLine: ts.NewLineKind.LineFeed });
 
     const generatedCode = printer.printNode(ts.EmitHint.Unspecified, ast, resultFile);
-
-    return {
-        generatedCode,
-        functionNames: extractedFunctionDefinitions.map(v => v.functionName)
-    }
+    return generatedCode
 }
+
 
 export function getFullFunctionNames(functionObj: Record<any, any>, current_value = ''): string[] {
     let results: string[] = []
@@ -142,12 +148,18 @@ export function getFullFunctionNames(functionObj: Record<any, any>, current_valu
     return results
 }
 
-export function getFullFunctionNamesMapGeneratedFile(functionNames: string[], functionObj: Record<any, any>): string {
+export function getFullFunctionNamesMapGeneratedFile(functionDef: GeneratedDefinition, functionObj: Record<any, any>): [ts.TypeAliasDeclaration, ts.VariableStatement] {
+    const functionNames = functionDef.functionNames
     const targetObj = functionObj.default ?? functionObj
     const functionFullNames = getFullFunctionNames(targetObj)
 
     const functionMap: Record<string, string> = functionNames.reduce((current, functionName) => {
         const targetFullName = functionFullNames.find(fn => fn.endsWith(functionName))
+        if (!targetFullName) {
+            functionDef.extractedFunctionDefinitions = functionDef.extractedFunctionDefinitions.filter((v)=> v.functionName !== functionName)
+            console.warn(`Not imported https function "${functionName}" detected. The definition reomoved\n`)
+            return current
+        }
         return {
             ...current,
             [functionName]: targetFullName
@@ -174,10 +186,7 @@ export function getFullFunctionNamesMapGeneratedFile(functionNames: string[], fu
             ts.NodeFlags.Const
         )
     )
-    const resultFile = ts.createSourceFile("dummy.ts", "", ts.ScriptTarget.Latest, /*setParentNodes*/ false, ts.ScriptKind.TS);
-    const printer = ts.createPrinter({ newLine: ts.NewLineKind.LineFeed });
-    const generated = printer.printNode(ts.EmitHint.Unspecified, ast, resultFile);
-    return generated
+    return [makeFunctionDefinitionTypes(functionDef.extractedFunctionDefinitions),ast]
 }
 
 export function outDefinitions(sources: string[], functionObj: Record<any, any>, options?: {
@@ -185,10 +194,10 @@ export function outDefinitions(sources: string[], functionObj: Record<any, any>,
 }): string {
     const { symbolConfig = ARGS_RESPONSE_TYPE_IDENTIFIER } = { ...options }
     const generateDefinitions = getGeneratedFunctionDefinitionsAndFunctionNames(sources, symbolConfig)
-    const generatedObjCode = getFullFunctionNamesMapGeneratedFile(generateDefinitions.functionNames, functionObj)
+    const [functionDefnitionAst, functionNamesAst] = getFullFunctionNamesMapGeneratedFile(generateDefinitions, functionObj)
     return [
-        generateDefinitions.generatedCode,
-        generatedObjCode
+        generateCodeFromAst(functionDefnitionAst),
+        generateCodeFromAst(functionNamesAst)
     ].join(EOL + EOL) + EOL
 }
 
