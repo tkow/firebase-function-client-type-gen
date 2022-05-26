@@ -102,6 +102,47 @@ try {
 
 See tests/index.ts code more detailed usage.
 
+Then, you can get fully type safed functions client in frontend code, like this.
+
+```typescript
+import { getFunctions, httpsCallable, HttpsCallable } from 'firebase/functions'
+import { getApp } from 'firebase/app'
+
+type IFunctionDefnitions = {
+    [key: string]: {
+        args: any,
+        result: any
+    }
+}
+
+type HttpsCallableFuntions<FunctionDefnitions extends IFunctionDefnitions> = {
+    [functionName in keyof FunctionDefnitions]: HttpsCallable<FunctionDefnitions[functionName]['args'], FunctionDefnitions[functionName]['result']>
+}
+
+
+type HttpsCallableFuntionIds<FunctionDefnitions> = {
+    [functionName in keyof FunctionDefnitions]: string
+}
+
+export function initializeFunctions<FunctionDefnitions extends IFunctionDefnitions>(functionNameObject: HttpsCallableFuntionIds<FunctionDefnitions>, app = getApp(), region = 'asia-northeast1'): HttpsCallableFuntions<FunctionDefnitions> {
+    const functions = getFunctions(app, region)
+    const functionDefinitions = Object.entries(functionNameObject)
+    return functionDefinitions.reduce((current, [functionName, functionId]) => {
+        return {
+            ...current,
+            [functionName]: httpsCallable(functions, functionId)
+        }
+    }, {} as HttpsCallableFuntions<FunctionDefnitions>)
+}
+
+// At your entrypoint file, import generated types from your generated types file.
+import { FunctionDefinitions, functionsMap } from './functions-types'
+const client = initializeFunctions<FunctionDefinitions>(functionsMap)
+// Fully type-safed api call functions.
+client.callSomethinReuest({...args})
+```
+
+
 ## Warning
 
 - This library for typescript firebase function users.
