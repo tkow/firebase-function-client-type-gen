@@ -1,13 +1,11 @@
 import * as functions from 'firebase-functions'
 
-type Params = {
-    id: number
-}
+type Params = Record<any, any>
 type Return = {
     result: 'success' | 'failed'
 }
 
-export const includeTestShallow = functions
+export const includeTestComposite = functions
   .region('asia-northeast1')
   .runWith({
     memory: '1GB',

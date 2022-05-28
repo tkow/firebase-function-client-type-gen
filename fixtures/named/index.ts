@@ -1,5 +1,5 @@
 import defaultFunc from '../default';
 
-export const nameSpace = defaultFunc;
+export const nested = defaultFunc;
 
-export { includeTestShallow as Hoge } from '../default/test-include-shallow';
+export { includeTestComposite } from './test-include-composite';

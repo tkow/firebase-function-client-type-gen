@@ -8,12 +8,10 @@ type Return = {
 }
 
 export const includeTest = functions
-    .region('asia-northeast1')
-    .runWith({
-        memory: '1GB'
-    })
-    .https.onCall((data: Params,_): Return => {
-        return {
-            result: 'ok'
-        }
-    })
+  .region('asia-northeast1')
+  .runWith({
+    memory: '1GB',
+  })
+  .https.onCall((data: Params, _): Return => ({
+    result: 'ok',
+  }))
