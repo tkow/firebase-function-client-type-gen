@@ -1,3 +1,9 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable consistent-return */
+/* eslint-disable no-bitwise */
+/* eslint-disable max-len */
+/* eslint-disable no-restricted-syntax */
+/* eslint-disable camelcase */
 import ts from 'typescript';
 import { EOL } from 'os';
 
@@ -69,7 +75,7 @@ function visitCallExpressionFound(
       let callExpression: ts.CallExpression | undefined;
       callExpressionChildren.forEach((v) => {
         if (ts.isPropertyAccessExpression(v)) {
-          return v.getChildren().find((target) => {
+          v.getChildren().forEach((target) => {
             if (ts.isIdentifier(target)) {
               if (target.text === findingWord) callExpression = node;
             }
@@ -149,8 +155,8 @@ function extractFunctionDefinition(
           const regionNode = visitCallExpressionFound(node, 'region');
           if (regionNode) {
             const regionName = regionNode[1]
-              .find((v) => ts.isStringLiteral(v))
-              ?.getText();
+              .find((regionNodExpr) => ts.isStringLiteral(regionNodExpr))
+              ?.getText().replace(/'/g, '');
             typeObjectNode.region = regionName;
           }
         }
@@ -229,17 +235,17 @@ function generateCodeFromAst(ast: ts.Node) {
 
 export function getFullFunctionNames(
   functionObj: Record<any, any>,
-  current_value = '',
+  currentValue = '',
 ): string[] {
   let results: string[] = [];
   for (const [key, value] of Object.entries(functionObj)) {
     if (typeof value !== 'function') {
       const recured = getFullFunctionNames(value, key).map((posterier) => {
-        if (!current_value) return posterier;
-        return `${current_value}-${posterier}`;
+        if (!currentValue) return posterier;
+        return `${currentValue}-${posterier}`;
       });
       results = results.concat(recured);
-    } else if (current_value) results.push(`${current_value}-${key}`);
+    } else if (currentValue) results.push(`${currentValue}-${key}`);
     else results.push(key);
   }
   return results;
@@ -253,10 +259,11 @@ export function getFullFunctionNamesMapGeneratedFile(
   const targetObj = functionObj.default ?? functionObj;
   const functionFullNames = getFullFunctionNames(targetObj);
 
-  const functionMap: Record<string, string> = functionNames.reduce(
+  const functionMap: Record<string, {id:string, region?:string}> = functionNames.reduce(
     (current, functionName) => {
       const targetFullName = functionFullNames.find((fn) => fn.endsWith(functionName));
       if (!targetFullName) {
+        // eslint-disable-next-line no-param-reassign
         functionDef.extractedFunctionDefinitions = functionDef.extractedFunctionDefinitions.filter(
           (v) => v.functionName !== functionName,
         );
@@ -267,7 +274,10 @@ export function getFullFunctionNamesMapGeneratedFile(
       }
       return {
         ...current,
-        [functionName]: targetFullName,
+        [functionName]: {
+          id: targetFullName,
+          region: functionDef.extractedFunctionDefinitions.find((v) => v.functionName === functionName)?.region,
+        },
       };
     },
     {},
@@ -281,10 +291,27 @@ export function getFullFunctionNamesMapGeneratedFile(
           undefined,
           undefined,
           ts.factory.createObjectLiteralExpression(
-            Object.entries(functionMap).map(([key, value]) => ts.factory.createPropertyAssignment(
-              ts.factory.createIdentifier(key),
-              ts.factory.createStringLiteral(value),
-            )),
+            Object.entries(functionMap).map(([key, value]) => {
+              const addRegion = value.region ? [
+                ts.factory.createPropertyAssignment(
+                  ts.factory.createIdentifier('region'),
+                  ts.factory.createStringLiteral(value.region),
+                ),
+              ] : [];
+              return ts.factory.createPropertyAssignment(
+                ts.factory.createIdentifier(key),
+                ts.factory.createObjectLiteralExpression(
+                  [
+                    ts.factory.createPropertyAssignment(
+                      ts.factory.createIdentifier('id'),
+                      ts.factory.createStringLiteral(value.id),
+                    ),
+                    ...addRegion,
+                  ],
+                  true,
+                ),
+              );
+            }),
             true,
           ),
         ),
