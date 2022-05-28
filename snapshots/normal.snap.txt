@@ -1,0 +1,21 @@
+export type FunctionDefinitions = {
+    "includeTest": {
+        args: { id: string; };
+        result: { result: "ok" | "ng"; };
+    };
+    "includeTestShallow": {
+        args: { id: number; };
+        result: { result: "success" | "failed"; };
+    };
+};
+
+export const functionsMap = {
+    includeTest: {
+        id: "namespace-includeTest",
+        region: "asia-northeast1"
+    },
+    includeTestShallow: {
+        id: "includeTestShallow",
+        region: "asia-northeast1"
+    }
+};

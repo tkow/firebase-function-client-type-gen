@@ -1,10 +1,5 @@
-import {onWrite} from './nest-functions/test-exclude'
-import {includeTest} from './nest-functions/test-include'
+import defaultFunc from '../default';
 
+export const nested = defaultFunc;
 
-export const nameSpace = {
-    includeTest,
-    onWrite
-}
-
-export {includeTestShallow} from './test-include-shallow'
+export { includeTestComposite } from './test-include-composite';

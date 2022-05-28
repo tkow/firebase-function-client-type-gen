@@ -1,0 +1,29 @@
+export type FunctionDefinitions = {
+    "includeTest": {
+        args: { id: string; };
+        result: { result: "ok" | "ng"; };
+    };
+    "includeTestShallow": {
+        args: { id: number; };
+        result: { result: "success" | "failed"; };
+    };
+    "includeTestComposite": {
+        args: { [x: string]: any; };
+        result: { result: "success" | "failed"; };
+    };
+};
+
+export const functionsMap = {
+    includeTest: {
+        id: "nested-namespace-includeTest",
+        region: "asia-northeast1"
+    },
+    includeTestShallow: {
+        id: "nested-includeTestShallow",
+        region: "asia-northeast1"
+    },
+    includeTestComposite: {
+        id: "includeTestComposite",
+        region: "asia-northeast1"
+    }
+};

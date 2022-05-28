@@ -9,24 +9,33 @@
   "scripts": {
     "clean": "rimraf ./dist/*",
     "build": "npm run clean && tsc",
-    "test": "npm run build && ts-node --transpile-only ./tests"
+    "test": "npm run build && mocha -r ts-node/register tests/**/*.test.ts",
+    "snap": "npm run build && SNAP=1  mocha -r ts-node/register tests/**/*.test.ts"
   },
   "repository": "https://github.com/tkow/firebase-function-client-type-gen.git",
   "author": "tkow <t.kusama0613@outlook.jp>",
   "license": "MIT",
   "devDependencies": {
+    "@types/chai": "^4.3.1",
     "@types/glob": "^7.2.0",
+    "@types/mocha": "^9.1.1",
     "@types/node": "^17.0.31",
     "@types/proxyquire": "^1.3.28",
+    "@typescript-eslint/eslint-plugin": "^5.26.0",
+    "@typescript-eslint/parser": "^5.26.0",
+    "chai": "^4.3.6",
+    "eslint": "^8.16.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.26.0",
     "firebase": "^9.8.0",
     "firebase-functions": "^3.21.0",
+    "mocha": "^10.0.0",
     "proxyquire": "^2.1.3",
     "rimraf": "^3.0.2",
-    "ts-node": "^10.7.0",
+    "ts-node": "^10.8.0",
     "typescript": "^4.6.4"
   },
-  "dependencies": {},
   "peerDependencies": {
-    "typescript": "^4.0.0"
+    "typescript": ">=4.0.0"
   }
 }
