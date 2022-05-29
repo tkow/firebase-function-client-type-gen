@@ -4,97 +4,12 @@
 /* eslint-disable max-len */
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable camelcase */
-import ts from 'typescript';
+import { ts } from 'ts-morph';
 import { EOL } from 'os';
-
-function makeFunctionDefinitionSignature(
-  functionId: string,
-  argsType: ts.TypeNode,
-  resultType: ts.TypeNode,
-) {
-  return ts.factory.createPropertySignature(
-    undefined,
-    ts.factory.createStringLiteral(functionId),
-    undefined,
-    ts.factory.createTypeLiteralNode([
-      ts.factory.createPropertySignature(
-        undefined,
-        ts.factory.createIdentifier('args'),
-        undefined,
-        argsType,
-      ),
-      ts.factory.createPropertySignature(
-        undefined,
-        ts.factory.createIdentifier('result'),
-        undefined,
-        resultType,
-      ),
-    ]),
-  );
-}
-
-function readTypeSciptFilesAndChecker(sourcePaths: string[]): {
-  checker: ts.TypeChecker;
-  sources: ts.SourceFile[];
-} {
-  const program = ts.createProgram(sourcePaths, {});
-  return {
-    checker: program.getTypeChecker(),
-    sources: sourcePaths
-      .map((spath) => program.getSourceFile(spath))
-      .filter((v) => !!v) as ts.SourceFile[],
-  };
-}
-
-function visitIdentifierFound(
-  node: ts.Node,
-  findingWord: string,
-  checker?: ts.TypeChecker,
-): ts.Node | undefined {
-  if (ts.isIdentifier(node)) {
-    if (node.text === findingWord) {
-      return node;
-    }
-  }
-  const children = node.getChildren();
-  if (children.length > 0) {
-    return children.find((v) => !!visitIdentifierFound(v, findingWord));
-  }
-  return undefined;
-}
-
-function visitCallExpressionFound(
-  node: ts.Node,
-  findingWord: string,
-  checker?: ts.TypeChecker,
-): [ts.Node, ts.NodeArray<ts.Expression>] | undefined {
-  const children = node.getChildren();
-  if (ts.isCallExpression(node)) {
-    const callExpressionChildren = node.getChildren();
-    if (children.length > 0) {
-      let callExpression: ts.CallExpression | undefined;
-      callExpressionChildren.forEach((v) => {
-        if (ts.isPropertyAccessExpression(v)) {
-          v.getChildren().forEach((target) => {
-            if (ts.isIdentifier(target)) {
-              if (target.text === findingWord) callExpression = node;
-            }
-          });
-        }
-      });
-      if (callExpression) {
-        return [callExpression, callExpression.arguments];
-      }
-    }
-  }
-  if (children.length > 0) {
-    for (const child of children) {
-      const n = visitCallExpressionFound(child, findingWord);
-      if (n) return n;
-    }
-  }
-  return undefined;
-}
+import { makeFunctionDefinitionSignature } from './utils/structure'
+import { generateCodeFromAst, readTypeSciptFilesAndChecker } from './utils/output'
+import { visitCallExpressionFound, visitIdentifierFound, collectTypeReferences } from './utils/visit'
+import { collectDependencyTypesCode } from './utils/visit-type-reference'
 
 type SymbolConfig = { args: string; result: string };
 
@@ -108,6 +23,7 @@ type FunctionAst = {
   result: ts.TypeNode;
   functionName: string;
   region?: string;
+  typeRefrenceNames: string[]
 };
 
 function extractFunctionDefinition(
@@ -115,28 +31,32 @@ function extractFunctionDefinition(
   checker: ts.TypeChecker,
   symbolConfig: SymbolConfig,
 ): FunctionAst | undefined {
-  const typeObjectNode: Partial<FunctionAst> = {
+  const typeObjectNode: Partial<FunctionAst> & Pick<FunctionAst, 'functionName' | 'typeRefrenceNames'> = {
     functionName: '',
+    typeRefrenceNames: [],
   };
+  const buildFlag = ts.NodeBuilderFlags.NoTruncation | ts.NodeBuilderFlags.InTypeAlias | ts.NodeBuilderFlags.UseStructuralFallback
   ts.forEachChild(source, (node) => {
     if (ts.isTypeAliasDeclaration(node)) {
       if (node.name.text === symbolConfig.args) {
+        typeObjectNode.typeRefrenceNames = [...typeObjectNode.typeRefrenceNames, ...collectTypeReferences(node)]
         const t = checker.getTypeAtLocation(node);
         // NOTE: https://stackoverflow.com/questions/67423762/typescript-compilerapi-how-to-get-expanded-type-ast
         const ast = checker.typeToTypeNode(
           t,
           undefined,
-          ts.NodeBuilderFlags.NoTruncation | ts.NodeBuilderFlags.InTypeAlias,
+          buildFlag,
         );
         typeObjectNode.args = ast;
       }
       if (node.name.text === symbolConfig.result) {
+        typeObjectNode.typeRefrenceNames = [...typeObjectNode.typeRefrenceNames, ...collectTypeReferences(node)]
         const t = checker.getTypeAtLocation(node);
         // NOTE: https://stackoverflow.com/questions/67423762/typescript-compilerapi-how-to-get-expanded-type-ast
         const ast = checker.typeToTypeNode(
           t,
           undefined,
-          ts.NodeBuilderFlags.NoTruncation | ts.NodeBuilderFlags.InTypeAlias,
+          buildFlag,
         );
         typeObjectNode.result = ast;
       }
@@ -214,23 +134,6 @@ export function getGeneratedFunctionDefinitionsAndFunctionNames(
     extractedFunctionDefinitions,
     functionNames: extractedFunctionDefinitions.map((v) => v.functionName),
   };
-}
-
-function generateCodeFromAst(ast: ts.Node) {
-  const resultFile = ts.createSourceFile(
-    'dummy.ts',
-    '',
-    ts.ScriptTarget.Latest,
-    /* setParentNodes */ false,
-    ts.ScriptKind.TS,
-  );
-  const printer = ts.createPrinter({ newLine: ts.NewLineKind.LineFeed });
-  const generatedCode = printer.printNode(
-    ts.EmitHint.Unspecified,
-    ast,
-    resultFile,
-  );
-  return generatedCode;
 }
 
 export function getFullFunctionNames(
@@ -338,8 +241,11 @@ export function outDefinitions(
     symbolConfig,
   );
   const [functionDefnitionAst, functionNamesAst] = getFullFunctionNamesMapGeneratedFile(generateDefinitions, functionObj);
+  const typeReferences = generateDefinitions.extractedFunctionDefinitions.map((v) => v.typeRefrenceNames).flat()
+  const typeReferencesCode = collectDependencyTypesCode(sources, typeReferences)
   return (
     [
+      typeReferencesCode,
       generateCodeFromAst(functionDefnitionAst),
       generateCodeFromAst(functionNamesAst),
     ].join(EOL + EOL) + EOL

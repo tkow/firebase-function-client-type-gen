@@ -4,8 +4,12 @@
   "description": "generator firebase functions httpsOnCall function types",
   "main": "dist/index.js",
   "files": [
-    "dist"
+    "dist",
+    "templates"
   ],
+  "bin": {
+    "gen-ffc": "./dist/bin/gen-ffc.js"
+  },
   "scripts": {
     "clean": "rimraf ./dist/*",
     "build": "npm run clean && tsc",
@@ -24,6 +28,7 @@
     "@typescript-eslint/eslint-plugin": "^5.26.0",
     "@typescript-eslint/parser": "^5.26.0",
     "chai": "^4.3.6",
+    "dummy": "link:fixtures/external-module/dummy",
     "eslint": "^8.16.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.26.0",
@@ -37,5 +42,8 @@
   },
   "peerDependencies": {
     "typescript": ">=4.0.0"
+  },
+  "dependencies": {
+    "ts-morph": "^15.0.0"
   }
 }

@@ -12,6 +12,9 @@ export const MOCKS_BASE = {
     region() {
       return DUMMY_MOCKS;
     },
+    runWith() {
+      return DUMMY_MOCKS;
+    },
     config: () => ({
     }),
     '@global': true,
