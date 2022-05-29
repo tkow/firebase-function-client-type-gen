@@ -35,11 +35,12 @@ const confirm = async (msg: string) => {
   return sanitized === 'y' || sanitized === 'yes';
 };
 
-function main(pathInput: string) {
-  const prefix = pathInput.startsWith('.') ? process.cwd() : ''
+async function main(pathInput: string) {
+  const prefix = pathInput.startsWith('/') ? '' : process.cwd()
   const postfix = pathInput.endsWith('.ts') ? '' : '.ts'
   const outpath = path.resolve(prefix, `${pathInput}${postfix}`)
-  const templateFile = path.resolve(__dirname, '..', '..', 'templates', 'firebase-function-type.ts')
+  const mainPath = require.resolve('firebase-function-client-type-gen')
+  const templateFile = path.resolve(path.dirname(mainPath), '..', 'templates', 'firebase-function-type.ts')
   if (fs.existsSync(outpath)) {
     console.log('In specified path file already existed.')
     if (!await confirm('> Overwrite it, okey？')) {
@@ -47,11 +48,15 @@ function main(pathInput: string) {
       return
     }
   }
-  fs.createReadStream(templateFile).pipe(
-    fs.createWriteStream(outpath),
-  ).end(() => {
-    console.log('File is generated');
-    process.exit();
+  await new Promise((resolve) => {
+    fs.createReadStream(templateFile).pipe(
+      fs.createWriteStream(outpath),
+    ).on('finish', () => {
+      console.log('File is generated');
+      resolve(true)
+    }).on('error', (d) => {
+      console.error(d)
+    })
   })
 }
 

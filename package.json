@@ -7,6 +7,9 @@
     "dist",
     "templates"
   ],
+  "bin": {
+    "gen-ffc": "./dist/bin/gen-ffc.js"
+  },
   "scripts": {
     "clean": "rimraf ./dist/*",
     "build": "npm run clean && tsc",
