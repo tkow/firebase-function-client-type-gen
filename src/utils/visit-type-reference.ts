@@ -2,6 +2,7 @@
 /* eslint-disable max-len */
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-console */
+import { EOL } from 'os';
 import path from 'path';
 import {
   Project, ts, printNode, TypeLiteralNode, SourceFile, TypeAliasDeclaration, InterfaceDeclaration,
@@ -69,5 +70,5 @@ export function collectDependencyTypesCode(filePaths: string| readonly string[],
 
   const targets = whoistingDepenencyTypes(typeUnresolved, typeLists)
 
-  return targets.map((v) => v.print()).join('\r\n\r\n')
+  return targets.map((v) => v.print()).join(EOL + EOL)
 }

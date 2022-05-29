@@ -19,7 +19,7 @@ type AliasedType = {
 type AliasedTypeAltA = AliasedType['aliased']
 type AliasedTypeAltB = AliasedType['aliased']
 
-type Check= {
+export type Check= {
   type: 'a'
   funcInteface: IA
   normalInterface: IB

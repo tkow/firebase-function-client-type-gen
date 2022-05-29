@@ -1,3 +1,54 @@
+type Check = {
+    type: 'a';
+    funcInteface: IA;
+    normalInterface: IB;
+    inheritedInterface: IC;
+    external: ExternalType;
+    aliased: AliasedType;
+    dummy: Dummy;
+    alta: AliasedTypeAltA;
+    altb: AliasedTypeAltB;
+};
+
+interface IA {
+    (): number;
+}
+
+interface IB {
+    st: 'st';
+}
+
+interface IC extends IB {
+    dy: 'dy';
+}
+
+type ExternalType = {
+    a: 1;
+    b: 2;
+};
+
+type AliasedType = {
+    aliased: 1;
+};
+
+type Dummy = {
+    type: 'dummy';
+    private: PrivateDummy;
+    interface: IDummy;
+};
+
+type PrivateDummy = {
+    type: 'dummy';
+};
+
+interface IDummy {
+    type: 'idummy';
+}
+
+type AliasedTypeAltA = AliasedType['aliased'];
+
+type AliasedTypeAltB = AliasedType['aliased'];
+
 export type FunctionDefinitions = {
     "includeTest": {
         args: { id: string; };
@@ -19,8 +70,7 @@ export const functionsMap = {
         region: "asia-northeast1"
     },
     aliasTypeCheck: {
-        id: "namespace-aliasTypeCheck",
-        region: "asia-northeast1"
+        id: "namespace-aliasTypeCheck"
     },
     includeTestShallow: {
         id: "includeTestShallow",

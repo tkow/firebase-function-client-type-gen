@@ -4,7 +4,8 @@
   "description": "generator firebase functions httpsOnCall function types",
   "main": "dist/index.js",
   "files": [
-    "dist"
+    "dist",
+    "templates"
   ],
   "scripts": {
     "clean": "rimraf ./dist/*",

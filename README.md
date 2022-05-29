@@ -125,12 +125,12 @@ type HttpsCallableFuntionIds<FunctionDefnitions> = {
 }
 
 export function initializeFunctions<FunctionDefnitions extends IFunctionDefnitions>(functionNameObject: HttpsCallableFuntionIds<FunctionDefnitions>, app = getApp(), region = 'asia-northeast1'): HttpsCallableFuntions<FunctionDefnitions> {
-    const functions = getFunctions(app, region)
     const functionDefinitions = Object.entries(functionNameObject)
-    return functionDefinitions.reduce((current, [functionName, functionId]) => {
+    return functionDefinitions.reduce((current, [functionName, functionObj]) => {
+        const functions = getFunctions(app, functionObj.region || region)
         return {
             ...current,
-            [functionName]: httpsCallable(functions, functionId)
+            [functionName]: httpsCallable(functions, functionObj.id)
         }
     }, {} as HttpsCallableFuntions<FunctionDefnitions>)
 }
