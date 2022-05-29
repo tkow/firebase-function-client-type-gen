@@ -118,6 +118,7 @@ function extractFunctionDefinition(
   const typeObjectNode: Partial<FunctionAst> = {
     functionName: '',
   };
+  const buildFlag = ts.NodeBuilderFlags.NoTruncation | ts.NodeBuilderFlags.InTypeAlias | ts.NodeBuilderFlags.UseStructuralFallback
   ts.forEachChild(source, (node) => {
     if (ts.isTypeAliasDeclaration(node)) {
       if (node.name.text === symbolConfig.args) {
@@ -126,7 +127,7 @@ function extractFunctionDefinition(
         const ast = checker.typeToTypeNode(
           t,
           undefined,
-          ts.NodeBuilderFlags.NoTruncation | ts.NodeBuilderFlags.InTypeAlias,
+          buildFlag,
         );
         typeObjectNode.args = ast;
       }
@@ -136,7 +137,7 @@ function extractFunctionDefinition(
         const ast = checker.typeToTypeNode(
           t,
           undefined,
-          ts.NodeBuilderFlags.NoTruncation | ts.NodeBuilderFlags.InTypeAlias,
+          buildFlag,
         );
         typeObjectNode.result = ast;
       }

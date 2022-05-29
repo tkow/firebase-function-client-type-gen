@@ -6,6 +6,9 @@ exports.dummy = {
     private: {
         type: 'dummy',
     },
+    interface: {
+        type: 'idummy',
+    },
 };
 exports.privateDummy = {
     type: 'dummy',

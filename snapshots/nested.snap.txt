@@ -3,6 +3,10 @@ export type FunctionDefinitions = {
         args: { id: string; };
         result: { result: "ok" | "ng"; };
     };
+    "aliasTypeCheck": {
+        args: { id: string; aliased: Check; };
+        result: { result: "ok" | "ng"; };
+    };
     "includeTestShallow": {
         args: { id: number; };
         result: { result: "success" | "failed"; };
@@ -16,6 +20,10 @@ export type FunctionDefinitions = {
 export const functionsMap = {
     includeTest: {
         id: "nested-namespace-includeTest",
+        region: "asia-northeast1"
+    },
+    aliasTypeCheck: {
+        id: "nested-namespace-aliasTypeCheck",
         region: "asia-northeast1"
     },
     includeTestShallow: {

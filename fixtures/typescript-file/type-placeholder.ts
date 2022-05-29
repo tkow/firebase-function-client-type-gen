@@ -1,5 +1,5 @@
 import { Dummy } from 'dummy'
-import { Externaltype } from './type'
+import { ExternalType } from './type'
 
 interface IA {
     (): number
@@ -16,14 +16,19 @@ type AliasedType = {
     aliased: 1
 }
 
+type AliasedTypeAltA = AliasedType['aliased']
+type AliasedTypeAltB = AliasedType['aliased']
+
 type Check= {
   type: 'a'
   funcInteface: IA
   normalInterface: IB
   inheritedInterface: IC
-  external: Externaltype
+  external: ExternalType
   aliased: AliasedType
   dummy: Dummy
+  alta: AliasedTypeAltA
+  altb: AliasedTypeAltB
 }
 
 type DummyType = {
