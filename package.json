@@ -16,6 +16,7 @@
     "test": "npm run build && mocha -r ts-node/register tests/**/*.test.ts",
     "snap": "npm run build && SNAP=1  mocha -r ts-node/register tests/**/*.test.ts"
   },
+  "keywords": ["firebase", "firebase-functions", "types", "code-gen"],
   "repository": "https://github.com/tkow/firebase-function-client-type-gen.git",
   "author": "tkow <t.kusama0613@outlook.jp>",
   "license": "MIT",
