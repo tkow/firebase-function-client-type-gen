@@ -3,9 +3,8 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-console */
 import { EOL } from 'os';
-import path from 'path';
 import {
-  Project, ts, printNode, TypeLiteralNode, SourceFile, TypeAliasDeclaration, InterfaceDeclaration,
+  InterfaceDeclaration, Project, SourceFile, ts, TypeAliasDeclaration,
 } from 'ts-morph';
 
 type CollectType = TypeAliasDeclaration | InterfaceDeclaration
@@ -38,7 +37,7 @@ function registerInterfacesAndTypeAliases(files: SourceFile[], cacheDir: Record<
   return cacheDir
 }
 
-function whoistingDepenencyTypes(typeNames: string[], cacheDir: Record<string, CollectType>): CollectType[] {
+function hoistingDepenencyTypes(typeNames: string[], cacheDir: Record<string, CollectType>): CollectType[] {
   let cache : CollectType[] = []
   typeNames.forEach((typeName) => {
     const typeNode = cacheDir[typeName]
@@ -53,7 +52,7 @@ function whoistingDepenencyTypes(typeNames: string[], cacheDir: Record<string, C
       },
       [],
     )
-    cache = [...cache, ...whoistingDepenencyTypes(nextSearches, cacheDir)]
+    cache = [...cache, ...hoistingDepenencyTypes(nextSearches, cacheDir)]
   })
   return cache
 }
@@ -68,7 +67,7 @@ export function collectDependencyTypesCode(filePaths: string| readonly string[],
 
   const typeLists = registerInterfacesAndTypeAliases(sourceFiles)
 
-  const targets = whoistingDepenencyTypes(typeUnresolved, typeLists)
+  const targets = hoistingDepenencyTypes(typeUnresolved, typeLists)
 
   return targets.map((v) => v.print()).join(EOL + EOL)
 }
